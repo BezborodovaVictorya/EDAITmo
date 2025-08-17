@@ -15,23 +15,23 @@ FX_REQUIRED_COLS = {"date", "USD"}
 def ensure_columns(df: pd.DataFrame, required: Iterable[str], df_name: str):
     missing = set(required) - set(df.columns)
     if missing:
-        raise SchemaValidationError(f"{df_name}: отсутствуют колонки: {sorted(missing)}")
+        raise SchemaValidationError(f"{df_name}: РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚ РєРѕР»РѕРЅРєРё: {sorted(missing)}")
 
 def ensure_not_empty(df: pd.DataFrame, df_name: str):
     if df.empty:
-        raise SchemaValidationError(f"{df_name}: пустой DataFrame")
+        raise SchemaValidationError(f"{df_name}: РїСѓСЃС‚РѕР№ DataFrame")
 
 def validate_transactions(df: pd.DataFrame):
     ensure_not_empty(df, "transactions")
     ensure_columns(df, TX_REQUIRED_COLS, "transactions")
     if not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
-        raise SchemaValidationError("transactions: 'timestamp' должен быть datetime")
+        raise SchemaValidationError("transactions: 'timestamp' РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ datetime")
     if df["amount"].lt(0).any():
        
-        raise SchemaValidationError("transactions: обнаружены отрицательные суммы 'amount'")
+        raise SchemaValidationError("transactions: РѕР±РЅР°СЂСѓР¶РµРЅС‹ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рµ СЃСѓРјРјС‹ 'amount'")
 
 def validate_fx(df: pd.DataFrame):
     ensure_not_empty(df, "fx")
     ensure_columns(df, FX_REQUIRED_COLS, "fx")
     if not pd.api.types.is_datetime64_any_dtype(pd.to_datetime(df["date"], errors="coerce")):
-        raise SchemaValidationError("fx: 'date' должен парситься как дата")
+        raise SchemaValidationError("fx: 'date' РґРѕР»Р¶РµРЅ РїР°СЂСЃРёС‚СЊСЃСЏ РєР°Рє РґР°С‚Р°")

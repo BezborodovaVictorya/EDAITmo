@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def _read_parquet(path: Path, engines: Optional[List[str]] = None) -> pd.DataFrame:
     if not path.exists():
-        raise DataFileNotFoundError(f"Файл не найден: {path}")
+        raise DataFileNotFoundError(f"Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ: {path}")
 
     if engines is None:
         engines = ["pyarrow", "fastparquet"]
@@ -21,8 +21,8 @@ def _read_parquet(path: Path, engines: Optional[List[str]] = None) -> pd.DataFra
             return pd.read_parquet(path, engine=eng)
         except Exception as e:  # noqa: BLE001
             last_err = e
-            logger.warning(f"Не удалось прочитать {path.name} с движком {eng}: {e}")
-    raise ParquetReadError(f"Ошибка чтения parquet {path}: {last_err}")
+            logger.warning(f"РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ {path.name} СЃ РґРІРёР¶РєРѕРј {eng}: {e}")
+    raise ParquetReadError(f"РћС€РёР±РєР° С‡С‚РµРЅРёСЏ parquet {path}: {last_err}")
 
 def configure_pandas():
     for k, v in PANDAS_OPTS.items():
@@ -30,7 +30,7 @@ def configure_pandas():
 
 def load_transactions() -> pd.DataFrame:
     df = _read_parquet(PATHS.tx_file)
-    # мягкое приведение типов
+    # РјСЏРіРєРѕРµ РїСЂРёРІРµРґРµРЅРёРµ С‚РёРїРѕРІ
     if not pd.api.types.is_datetime64_any_dtype(df.get("timestamp")):
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce", utc=True)
     validate_transactions(df)
@@ -38,7 +38,7 @@ def load_transactions() -> pd.DataFrame:
 
 def load_fx() -> pd.DataFrame:
     df = _read_parquet(PATHS.fx_file)
-    # приведение типов
+    # РїСЂРёРІРµРґРµРЅРёРµ С‚РёРїРѕРІ
     df["date"] = pd.to_datetime(df["date"], errors="coerce", utc=True).dt.date
     validate_fx(df)
     return df

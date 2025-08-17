@@ -18,7 +18,7 @@ class Paths(BaseModel):
 
 PATHS = Paths()
 
-# Настройки pandas 
+# РќР°СЃС‚СЂРѕР№РєРё pandas 
 PANDAS_OPTS = {
     "display.max_columns": 200,
     "display.width": 200,

@@ -13,24 +13,24 @@ def _infer_currency_columns(fx: pd.DataFrame) -> Set[str]:
 def convert_to_usd(trans: pd.DataFrame, fx: pd.DataFrame, strict: bool = False) -> pd.DataFrame:
     """
    
-    strict=True -> падаем, если курс для валюты/даты отсутствует.
+    strict=True -> РїР°РґР°РµРј, РµСЃР»Рё РєСѓСЂСЃ РґР»СЏ РІР°Р»СЋС‚С‹/РґР°С‚С‹ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚.
     """
     df = trans.copy()
     df["date_only"] = df["timestamp"].dt.date
 
     fx_cols = _infer_currency_columns(fx)
-    # join по дате
+    # join РїРѕ РґР°С‚Рµ
     df = df.merge(fx, left_on="date_only", right_on="date", how="left", suffixes=("", "_fx"))
 
     def safe_convert(row) -> Optional[float]:
         cur = row.get("currency")
         if pd.isna(cur) or cur not in fx_cols:
             return np.nan
-        rate = row.get(cur)  # курс этой валюты относительно USD
+        rate = row.get(cur)  # РєСѓСЂСЃ СЌС‚РѕР№ РІР°Р»СЋС‚С‹ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ USD
         amt = row.get("amount")
         if pd.isna(rate) or pd.isna(amt) or rate == 0:
             return np.nan
-        # Если в fx задано "сколько валюты за 1 USD", то перевод в USD = amount / rate
+        # Р•СЃР»Рё РІ fx Р·Р°РґР°РЅРѕ "СЃРєРѕР»СЊРєРѕ РІР°Р»СЋС‚С‹ Р·Р° 1 USD", С‚Рѕ РїРµСЂРµРІРѕРґ РІ USD = amount / rate
         try:
             return float(amt) / float(rate)
         except Exception:  # noqa: BLE001
@@ -41,12 +41,12 @@ def convert_to_usd(trans: pd.DataFrame, fx: pd.DataFrame, strict: bool = False) 
     missing_mask = df["amount_usd"].isna()
     missing_count = int(missing_mask.sum())
     if missing_count > 0:
-        msg = f"amount_usd не удалось вычислить для {missing_count} строк (нет курса/валюты/даты)."
+        msg = f"amount_usd РЅРµ СѓРґР°Р»РѕСЃСЊ РІС‹С‡РёСЃР»РёС‚СЊ РґР»СЏ {missing_count} СЃС‚СЂРѕРє (РЅРµС‚ РєСѓСЂСЃР°/РІР°Р»СЋС‚С‹/РґР°С‚С‹)."
         if strict:
             raise CurrencyConversionError(msg)
         logger.warning(msg)
 
-    # подчистим fx-колонки после merge
+    # РїРѕРґС‡РёСЃС‚РёРј fx-РєРѕР»РѕРЅРєРё РїРѕСЃР»Рµ merge
     drop_cols = ["date_only", "date"] + list(fx_cols)
     df.drop(columns=[c for c in drop_cols if c in df.columns], inplace=True)
     return df
@@ -55,22 +55,22 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
    
     out = df.copy()
 
-    # Временные признаки
+    # Р’СЂРµРјРµРЅРЅС‹Рµ РїСЂРёР·РЅР°РєРё
     out["hour"] = out["timestamp"].dt.hour
     out["dayofweek"] = out["timestamp"].dt.dayofweek  # 0=Mon
     out["is_night"] = out["hour"].between(0, 6).astype("int8")
 
-    # Клиентские агрегаты: медиана и ст.откл. по USD
+    # РљР»РёРµРЅС‚СЃРєРёРµ Р°РіСЂРµРіР°С‚С‹: РјРµРґРёР°РЅР° Рё СЃС‚.РѕС‚РєР». РїРѕ USD
     grp = out.groupby("customer_id")["amount_usd"]
     out["cust_amount_median"] = grp.transform("median").fillna(0.0)
     out["cust_amount_std"] = grp.transform("std").fillna(0.0)
 
-    # Отношение суммы к привычным тратам клиента
+    # РћС‚РЅРѕС€РµРЅРёРµ СЃСѓРјРјС‹ Рє РїСЂРёРІС‹С‡РЅС‹Рј С‚СЂР°С‚Р°Рј РєР»РёРµРЅС‚Р°
     denom = (out["cust_amount_median"].abs() + 1e-6)
     out["txn_amount_ratio"] = (out["amount_usd"].abs() / denom).clip(upper=1e4)
 
-    # Вспомогательные признаки из last_hour_activity (если struct уже сериализован в dict/строку)
-    # Попытаемся аккуратно распаковать, не упав.
+    # Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РїСЂРёР·РЅР°РєРё РёР· last_hour_activity (РµСЃР»Рё struct СѓР¶Рµ СЃРµСЂРёР°Р»РёР·РѕРІР°РЅ РІ dict/СЃС‚СЂРѕРєСѓ)
+    # РџРѕРїС‹С‚Р°РµРјСЃСЏ Р°РєРєСѓСЂР°С‚РЅРѕ СЂР°СЃРїР°РєРѕРІР°С‚СЊ, РЅРµ СѓРїР°РІ.
     for k in ["num_transactions", "total_amount", "unique_merchants", "unique_countries", "max_single_amount"]:
         out[f"lha_{k}"] = np.nan
 
@@ -91,13 +91,13 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
                 "lha_unique_countries", "lha_max_single_amount"]
     out[lha_cols] = lha_vals
 
-    # Робастные clip’ы от выбросов
+    # Р РѕР±Р°СЃС‚РЅС‹Рµ clipвЂ™С‹ РѕС‚ РІС‹Р±СЂРѕСЃРѕРІ
     for col in ["amount_usd", "lha_total_amount", "lha_max_single_amount"]:
         if col in out.columns:
             q99 = out[col].quantile(0.99)
             out[col] = out[col].clip(upper=q99)
 
-    # Готовые бинарные удобные флаги
+    # Р“РѕС‚РѕРІС‹Рµ Р±РёРЅР°СЂРЅС‹Рµ СѓРґРѕР±РЅС‹Рµ С„Р»Р°РіРё
     out["is_card_not_present"] = (~out["is_card_present"]).astype("int8")
     out["is_high_risk_vendor_f"] = out["is_high_risk_vendor"].astype("int8")
     out["is_outside_home_country_f"] = out["is_outside_home_country"].astype("int8")

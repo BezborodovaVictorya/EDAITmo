@@ -12,13 +12,13 @@ def cmd_run_all():
     tx = convert_to_usd(tx, fx, strict=False)
     df = build_features(tx)
     out_dir = run_eda(df)
-    logging.getLogger(__name__).info(f"Ãîòîâî. Îò÷¸òû: {out_dir}")
+    logging.getLogger(__name__).info(f"Ð“Ð¾Ñ‚Ð¾Ð²Ð¾. ÐžÑ‚Ñ‡Ñ‘Ñ‚Ñ‹: {out_dir}")
 
 def cmd_run_eda():
     configure_pandas()
     tx = load_transactions()
     out_dir = run_eda(tx)
-    logging.getLogger(__name__).info(f"Ãîòîâî. Îò÷¸òû: {out_dir}")
+    logging.getLogger(__name__).info(f"Ð“Ð¾Ñ‚Ð¾Ð²Ð¾. ÐžÑ‚Ñ‡Ñ‘Ñ‚Ñ‹: {out_dir}")
 
 def cmd_run_fe():
     configure_pandas()
@@ -27,16 +27,16 @@ def cmd_run_fe():
     df = convert_to_usd(tx, fx, strict=False)
     df = build_features(df)
     out_dir = run_eda(df)
-    logging.getLogger(__name__).info(f"Ãîòîâî. Îò÷¸òû ïî ôè÷àì: {out_dir}")
+    logging.getLogger(__name__).info(f"Ð“Ð¾Ñ‚Ð¾Ð²Ð¾. ÐžÑ‚Ñ‡Ñ‘Ñ‚Ñ‹ Ð¿Ð¾ Ñ„Ð¸Ñ‡Ð°Ð¼: {out_dir}")
 
 def main():
     setup_logging()
     parser = argparse.ArgumentParser(description="Fraud EDA/FE pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("run-all", help="çàãðóçêà -> êîíâåðòàöèÿ -> ôè÷è -> EDA")
-    sub.add_parser("run-eda", help="òîëüêî EDA áåç êîíâåðòàöèè/ôè÷")
-    sub.add_parser("run-fe", help="çàãðóçêà -> êîíâåðòàöèÿ -> ôè÷è -> EDA (ïî ôè÷àì)")
+    sub.add_parser("run-all", help="Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° -> ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð°Ñ†Ð¸Ñ -> Ñ„Ð¸Ñ‡Ð¸ -> EDA")
+    sub.add_parser("run-eda", help="Ñ‚Ð¾Ð»ÑŒÐºÐ¾ EDA Ð±ÐµÐ· ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð°Ñ†Ð¸Ð¸/Ñ„Ð¸Ñ‡")
+    sub.add_parser("run-fe", help="Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° -> ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð°Ñ†Ð¸Ñ -> Ñ„Ð¸Ñ‡Ð¸ -> EDA (Ð¿Ð¾ Ñ„Ð¸Ñ‡Ð°Ð¼)")
 
     args = parser.parse_args()
     if args.cmd == "run-all":

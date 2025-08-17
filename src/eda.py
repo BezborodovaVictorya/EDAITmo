@@ -79,7 +79,7 @@ def temporal_patterns(df: pd.DataFrame, out_dir: Path):
         plt.close()
 
 def quick_feature_importance(df: pd.DataFrame, out_dir: Path):
-    # Черновой LightGBM для оценки важности признаков
+    # Р§РµСЂРЅРѕРІРѕР№ LightGBM РґР»СЏ РѕС†РµРЅРєРё РІР°Р¶РЅРѕСЃС‚Рё РїСЂРёР·РЅР°РєРѕРІ
     num_df = df.select_dtypes(include=[np.number])
     if "is_fraud" not in num_df.columns:
         return
@@ -102,18 +102,18 @@ def generate_summary(df: pd.DataFrame, out_dir: Path):
     fraud_rate = df["is_fraud"].mean()
     summary = [
         f"# EDA Summary",
-        f"Дата анализа: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC",
-        f"- Всего транзакций: {len(df):,}",
-        f"- Доля мошеннических: {fraud_rate:.2%}",
-        f"- Кол-во стран: {df['country'].nunique()}",
-        f"- Кол-во валют: {df['currency'].nunique()}",
-        f"- Топ вендор категорий: {', '.join(df['vendor_category'].value_counts().head(5).index.astype(str))}",
+        f"Р”Р°С‚Р° Р°РЅР°Р»РёР·Р°: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC",
+        f"- Р’СЃРµРіРѕ С‚СЂР°РЅР·Р°РєС†РёР№: {len(df):,}",
+        f"- Р”РѕР»СЏ РјРѕС€РµРЅРЅРёС‡РµСЃРєРёС…: {fraud_rate:.2%}",
+        f"- РљРѕР»-РІРѕ СЃС‚СЂР°РЅ: {df['country'].nunique()}",
+        f"- РљРѕР»-РІРѕ РІР°Р»СЋС‚: {df['currency'].nunique()}",
+        f"- РўРѕРї РІРµРЅРґРѕСЂ РєР°С‚РµРіРѕСЂРёР№: {', '.join(df['vendor_category'].value_counts().head(5).index.astype(str))}",
     ]
     (out_dir / "summary.md").write_text("\n".join(summary), encoding="utf-8")
 
 def run_eda(df: pd.DataFrame) -> Path:
     out_dir = _start_report_folder()
-    logger.info(f"Сохраняю EDA отчёты в {out_dir}")
+    logger.info(f"РЎРѕС…СЂР°РЅСЏСЋ EDA РѕС‚С‡С‘С‚С‹ РІ {out_dir}")
 
     save_basic_stats(df, out_dir)
     class_balance(df, out_dir)
@@ -125,5 +125,5 @@ def run_eda(df: pd.DataFrame) -> Path:
     quick_feature_importance(df, out_dir)
     generate_summary(df, out_dir)
 
-    logger.info("EDA завершён.")
+    logger.info("EDA Р·Р°РІРµСЂС€С‘РЅ.")
     return out_dir
